@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Film {
+  id             String           @id @default(uuid())
+  type           FilmType
+  title          String           @db.VarChar(50)
+  summary        String           @db.Text
+  releaseDate    DateTime         @db.Date
+  FilmGenre      FilmGenre[]
+  Season         Season[]
+  FilmCover      FilmCover[]
+  ProductionTeam ProductionTeam[]
+  FilmLike       FilmLike[]
+  CommentFilm    CommentFilm[]
+}
+
+enum FilmType {
+  STANDALONE
+  SERIES
+}
+
+model FilmGenre {
+  id      String @id @default(uuid())
+  film    Film   @relation(fields: [filmId], references: [id])
+  filmId  String
+  genre   Genre  @relation(fields: [genreId], references: [id])
+  genreId String
+}
+
+model Genre {
+  id        String      @id @default(uuid())
+  title     String      @db.VarChar(50)
+  FilmGenre FilmGenre[]
+}
+
+model Season {
+  id            String          @id @default(uuid())
+  order         Int
+  title         String          @db.VarChar(50)
+  film          Film            @relation(fields: [filmId], references: [id])
+  filmId        String
+  EpisodeSeason EpisodeSeason[]
+}
+
+model Episode {
+  id             String           @id @default(uuid())
+  title          String           @db.VarChar(50)
+  summary        String           @db.Text
+  releaseDate    DateTime         @db.Date
+  order          Int
+  EpisodeSeason  EpisodeSeason[]
+  EpisodeCover   EpisodeCover[]
+  EpisodeLike    EpisodeLike[]
+  CommentEpisode CommentEpisode[]
+}
+
+model EpisodeSeason {
+  id        String  @id @default(uuid())
+  episode   Episode @relation(fields: [episodeId], references: [id])
+  season    Season  @relation(fields: [seasonId], references: [id])
+  episodeId String
+  seasonId  String
+}
+
+model Cover {
+  id           String         @id @default(uuid())
+  url          String
+  alt          String
+  FilmCover    FilmCover[]
+  EpisodeCover EpisodeCover[]
+}
+
+model FilmCover {
+  id      String @id @default(uuid())
+  cover   Cover  @relation(fields: [coverId], references: [id])
+  film    Film   @relation(fields: [filmId], references: [id])
+  coverId String
+  filmId  String
+}
+
+model EpisodeCover {
+  id        String  @id @default(uuid())
+  cover     Cover   @relation(fields: [coverId], references: [id])
+  episode   Episode @relation(fields: [episodeId], references: [id])
+  coverId   String
+  episodeId String  @map("filmId")
+}
+
+model Artist {
+  id             String           @id @default(uuid())
+  name           String           @db.VarChar(50)
+  picture        String?
+  ProductionTeam ProductionTeam[]
+}
+
+model ProductionTeam {
+  id       String @id @default(uuid())
+  film     Film   @relation(fields: [filmId], references: [id])
+  artist   Artist @relation(fields: [artistId], references: [id])
+  filmId   String
+  artistId String
+}
+
+model User {
+  id          String        @id @default(uuid())
+  userName    String        @db.VarChar(50)
+  phone       String        @db.Char(10)
+  email       String        @db.VarChar(50)
+  password    String
+  avatar      String
+  Ticket      Ticket[]
+  FilmLike    FilmLike[]
+  EpisodeLike EpisodeLike[]
+  Comment     Comment[]
+}
+
+model Ticket {
+  id         String @id @default(uuid())
+  title      String @db.VarChar(50)
+  department String
+  body       String @db.VarChar(250)
+  user       User   @relation(fields: [userId], references: [id])
+  userId     String
+}
+
+model FilmLike {
+  id     String @id @default(uuid())
+  film   Film   @relation(fields: [filmId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  filmId String
+  userId String
+}
+
+model EpisodeLike {
+  id        String  @id @default(uuid())
+  episode   Episode @relation(fields: [episodeId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+  episodeId String
+  userId    String
+}
+
+model Comment {
+  id             String           @id @default(uuid())
+  body           String           @db.VarChar(250)
+  createdAt      DateTime         @default(now())
+  isApproved     Boolean          @default(false)
+  user           User             @relation(fields: [userId], references: [id])
+  userId         String
+  CommentEpisode CommentEpisode[]
+  CommentFilm    CommentFilm[]
+}
+
+model CommentEpisode {
+  id        String  @id @default(uuid())
+  comment   Comment @relation(fields: [commentId], references: [id])
+  episode   Episode @relation(fields: [episodeId], references: [id])
+  commentId String
+  episodeId String
+}
+
+model CommentFilm {
+  id        String  @id @default(uuid())
+  comment   Comment @relation(fields: [commentId], references: [id])
+  film      Film    @relation(fields: [filmId], references: [id])
+  commentId String
+  filmId    String
+}
