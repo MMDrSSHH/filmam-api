@@ -90,7 +90,7 @@ model EpisodeCover {
   cover     Cover   @relation(fields: [coverId], references: [id])
   episode   Episode @relation(fields: [episodeId], references: [id])
   coverId   String
-  episodeId String  @map("filmId")
+  episodeId String
 }
 
 model Artist {

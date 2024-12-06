@@ -1,10 +1,15 @@
 const http = require("http");
-const app = require("./app");
+const scaffoldApp = require("./app");
 require("dotenv").config();
 
-const server = http.createServer(app);
+const main = async () => {
+  const app = await scaffoldApp();
+  const server = http.createServer(app);
 
-const port = process.env.PORT;
-server.listen(port, () => {
-  console.log(`Server is now running on port ${port}`);
-});
+  const port = process.env.PORT;
+  server.listen(port, () => {
+    console.log(`Server is now running on port ${port}`);
+  });
+};
+
+main();
